@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>InnerOrder</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="InnerOrder">
+    <meta name="theme-color" content="#f5f5f4">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2592/2592231.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              morandi: {
+                bg: '#f5f5f4', // stone-100
+                surface: '#ffffff',
+                text: '#44403c', // stone-700
+                subtext: '#78716c', // stone-500
+                accent: '#57534e', // stone-600
+                red: '#e7e5e4', // stone-200 (using stone for muted feel)
+                blue: '#d6d3d1',
+                green: '#e7e5e4',
+              }
+            },
+            animation: {
+              'breathe-in': 'breatheIn 4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+              'hold': 'hold 7s linear forwards',
+              'breathe-out': 'breatheOut 8s cubic-bezier(0.4, 0, 0.6, 1) forwards',
+              'aura-in': 'auraIn 4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+              'aura-out': 'auraOut 8s cubic-bezier(0.4, 0, 0.6, 1) forwards',
+              'shred': 'shred 0.6s ease-out forwards',
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+            },
+            keyframes: {
+              breatheIn: {
+                '0%': { transform: 'scale(0.8)', opacity: '0.6' },
+                '100%': { transform: 'scale(1.2)', opacity: '1' },
+              },
+              hold: {
+                '0%': { transform: 'scale(1.2)' },
+                '100%': { transform: 'scale(1.2)' },
+              },
+              breatheOut: {
+                '0%': { transform: 'scale(1.2)', opacity: '1' },
+                '100%': { transform: 'scale(0.8)', opacity: '0.6' },
+              },
+              auraIn: {
+                '0%': { transform: 'scale(0.8)', opacity: '0' },
+                '100%': { transform: 'scale(1.6)', opacity: '0.3' },
+              },
+              auraOut: {
+                '0%': { transform: 'scale(1.6)', opacity: '0.3' },
+                '100%': { transform: 'scale(0.8)', opacity: '0' },
+              },
+              shred: {
+                '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+                '50%': { transform: 'translateY(20px) scale(0.9) skewX(10deg)', opacity: '0.5' },
+                '100%': { transform: 'translateY(50px) scale(0) skewX(20deg)', opacity: '0' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #f5f5f4;
+        color: #44403c;
+        /* Disable long-press context menu on mobile to feel more like an App */
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      /* But allow selection in inputs */
+      input, textarea {
+        -webkit-user-select: auto;
+        user-select: auto;
+      }
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "uuid": "https://esm.sh/uuid@^13.0.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Service Worker for Offline functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          const swCode = `
+            const CACHE_NAME = 'innerorder-v1';
+            const ASSETS = [
+              '/',
+              '/index.html',
+              '/manifest.json'
+            ];
+
+            self.addEventListener('install', (event) => {
+              event.waitUntil(
+                caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+              );
+            });
+
+            self.addEventListener('fetch', (event) => {
+              event.respondWith(
+                caches.match(event.request).then((response) => {
+                  return response || fetch(event.request);
+                })
+              );
+            });
+          `;
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const workerUrl = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(workerUrl).catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
